@@ -1,8 +1,8 @@
-# Projektupdate – Finale Abgabe
+# Projektupdate
 
 ## Heutige Arbeit
 
-Heute haben wir die finale Version des Projekts fertiggestellt.
+Heute haben wir weiter am Projekt gearbeitet und wichtige Verbesserungen gemacht.
 
 ## Verbesserungen
 
@@ -12,12 +12,14 @@ Nedit hat die Layout-Probleme behoben und die Darstellung der Seite verbessert.
 
 ## Aktueller Stand
 
-Die Webseite ist jetzt fertig und funktioniert wie geplant.
+Die Webseite funktioniert, ist aber noch **nicht responsive** und hat noch einige kleinere Darstellungsprobleme.
 
 ## Nächste Schritte
 
+* Webseite responsive machen
 * Präsentation vor der Klasse vorbereiten
 
 ---
 
-Das Projekt ist bereit für die finale Abgabe.
+Das Projekt macht gute Fortschritte.
+
