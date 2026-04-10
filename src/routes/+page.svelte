@@ -8,38 +8,47 @@
     color: #1A1410;
     font-family: 'Jost', sans-serif;
     font-weight: 300;
-    /* Normal system cursor — no custom cursor */
     cursor: auto;
   }
-  :global(html.scroll-locked) { overflow: hidden; }
+  :global(html.scroll-locked)   { overflow: hidden; }
   :global(html.scroll-unlocked) { overflow-y: auto; }
 
-  /* ── HERO SECTION ───────────────────────────────────────────── */
+  /* ── HERO ─────────────────────────────────────────────────────── */
   .hero {
-    width: 100vw; height: 100vh;
-    position: relative; overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    min-height: 500px;        /* never collapse below this */
+    position: relative;
+    overflow: hidden;
     background: #EDE8DF;
   }
 
-  /* ── 3D VIEWER — absolute inset:0, sits behind everything ───── */
+  /* ── 3-D VIEWER ───────────────────────────────────────────────── */
   .viewer-full {
-    position: absolute; inset: 0; z-index: 1;
-    /* Push canvas bottom up by the config bar height so the ring
-       isn't hidden behind it. Config bar is ~130px. */
-    bottom: 130px;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    bottom: var(--config-bar-h, 130px);   /* CSS var lets JS push value in */
   }
 
-  /* Subtle vignette — only the very outer rim, centre is clear */
+  /* ── VIGNETTE ─────────────────────────────────────────────────── */
   .atmo-overlay {
-    position: absolute; z-index: 2; pointer-events: none;
-    /* Only cover the sides and top — leave bottom open for config bar */
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
     top: 0; left: 0; right: 0;
-    bottom: 130px;
-    background:
-      radial-gradient(ellipse 90% 90% at 50% 46%, transparent 65%, rgba(237,232,223,0.25) 100%);
+    bottom: var(--config-bar-h, 130px);
+    background: radial-gradient(ellipse 90% 90% at 50% 46%, transparent 65%, rgba(237,232,223,0.25) 100%);
   }
 
-  /* ── TOP NAV ───────────────────────────────────────────────── */
+  /* ── GRAIN ────────────────────────────────────────────────────── */
+  .grain {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0.022;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  /* ── TOP NAV ──────────────────────────────────────────────────── */
   .nav {
     position: absolute; top: 0; left: 0; right: 0; z-index: 10;
     display: flex; align-items: center; justify-content: space-between;
@@ -52,19 +61,57 @@
     text-transform: uppercase; color: rgba(30,20,10,0.75);
   }
   .nav-logo span { font-style: italic; color: rgba(140,105,50,0.85); }
+
   .nav-right { display: flex; align-items: center; gap: 32px; }
+
   .nav-links {
     display: flex; gap: 32px;
     font-size: 0.62rem; letter-spacing: 0.4em; text-transform: uppercase;
     color: rgba(30,20,10,0.4);
   }
-  .nav-links span { transition: color 0.2s; }
+  .nav-links span { transition: color 0.2s; cursor: pointer; }
   .nav-links span:hover { color: rgba(30,20,10,0.8); }
+
+  /* hamburger — hidden on desktop */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column; gap: 5px;
+    background: none; border: none; padding: 4px; cursor: pointer;
+  }
+  .nav-hamburger span {
+    display: block; width: 22px; height: 1.5px;
+    background: rgba(30,20,10,0.6);
+    transition: transform 0.25s, opacity 0.25s;
+  }
+
+  /* mobile nav drawer */
+  .mobile-drawer {
+    display: none;
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    background: rgba(237,232,223,0.97);
+    backdrop-filter: blur(12px);
+    padding: 20px 28px 28px;
+    flex-direction: column; gap: 20px;
+    animation: fadeDown 0.25s ease both;
+    border-bottom: 1px solid rgba(140,105,50,0.12);
+  }
+  .mobile-drawer.open { display: flex; }
+  .mobile-drawer-top { display: flex; justify-content: space-between; align-items: center; }
+  .mobile-drawer-links { display: flex; flex-direction: column; gap: 16px; }
+  .mobile-drawer-links span {
+    font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: rgba(30,20,10,0.55); cursor: pointer; transition: color 0.2s;
+  }
+  .mobile-drawer-links span:hover { color: rgba(140,105,50,0.9); }
+  .drawer-close {
+    background: none; border: none; cursor: pointer;
+    font-size: 1.2rem; color: rgba(30,20,10,0.4); padding: 4px;
+  }
 
   .scroll-toggle {
     display: flex; align-items: center; gap: 8px;
     background: none; border: 1px solid rgba(140,105,50,0.25);
-    padding: 6px 14px;
+    padding: 6px 14px; cursor: pointer;
     font-family: 'Jost', sans-serif; font-size: 0.55rem;
     letter-spacing: 0.4em; text-transform: uppercase;
     color: rgba(140,105,50,0.7); transition: all 0.2s;
@@ -73,7 +120,7 @@
   .scroll-toggle svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.5; transition: transform 0.3s; }
   .scroll-toggle.unlocked svg { transform: rotate(180deg); }
 
-  /* ── RING TITLE ─────────────────────────────────────────────── */
+  /* ── RING TITLE ───────────────────────────────────────────────── */
   .ring-hero {
     position: absolute; top: 80px; left: 44px; z-index: 10;
     animation: fadeUp 1.2s ease 0.5s both;
@@ -86,28 +133,21 @@
   .ring-eyebrow::before { content: ''; width: 22px; height: 1px; background: rgba(140,105,50,0.5); }
   .ring-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-size: clamp(1.4rem, 3vw, 2.8rem);
     font-weight: 300; line-height: 1.0;
     color: #1A1410;
   }
   .ring-title em { font-style: italic; color: rgba(140,105,50,0.85); display: block; }
 
-  /* ── CORNER ORNAMENTS ──────────────────────────────────────── */
+  /* ── CORNER ORNAMENTS ─────────────────────────────────────────── */
   .orn { position: absolute; z-index: 5; pointer-events: none; width: 54px; height: 54px; }
   .orn-tl { top: 16px; left: 16px; }
   .orn-tr { top: 16px; right: 16px; transform: rotate(90deg); }
   .orn svg { width: 100%; height: 100%; }
 
-  /* ── GRAIN ─────────────────────────────────────────────────── */
-  .grain {
-    position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0.022;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 128px 128px;
-  }
-
-  /* ── SCROLL INDICATOR ──────────────────────────────────────── */
+  /* ── SCROLL INDICATOR ─────────────────────────────────────────── */
   .scroll-hint {
-    position: absolute; bottom: 148px; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: calc(var(--config-bar-h, 130px) + 18px); left: 50%; transform: translateX(-50%);
     z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 6px;
     opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
     font-size: 0.48rem; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(140,105,50,0.5);
@@ -116,27 +156,34 @@
   .scroll-hint svg { width: 14px; height: 14px; stroke: rgba(140,105,50,0.5); fill: none; stroke-width: 1.5; animation: bounce 1.8s ease infinite; }
   @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
-  /* ── BOTTOM CONFIG BAR — compact, sits at absolute bottom ──── */
+  /* ── CONFIG BAR ───────────────────────────────────────────────── */
   .config-bar {
     position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
     background: rgba(250,247,242,0.96);
     backdrop-filter: blur(20px) saturate(1.4);
     -webkit-backdrop-filter: blur(20px) saturate(1.4);
     border-top: 1px solid rgba(160,130,80,0.15);
-    /* Compact padding — target ~130px total height */
     padding: 12px 44px 14px;
     animation: fadeUp 1s ease 0.8s both;
   }
 
+  /* tabs row — scrollable on mobile */
   .config-tabs {
-    display: flex; gap: 0; margin-bottom: 10px;
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
     border-bottom: 1px solid rgba(160,130,80,0.12);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+  .config-tabs::-webkit-scrollbar { display: none; }
+
   .tab-btn {
-    padding: 0 0 8px; margin-right: 24px;
+    padding: 0 0 8px; margin-right: 24px; flex-shrink: 0;
     font-size: 0.58rem; letter-spacing: 0.42em; text-transform: uppercase;
-    color: rgba(30,20,10,0.35); background: none; border: none;
-    position: relative; transition: color 0.2s;
+    color: rgba(30,20,10,0.35); background: none; border: none; white-space: nowrap;
+    position: relative; transition: color 0.2s; cursor: pointer;
   }
   .tab-btn.active { color: rgba(140,105,50,0.9); }
   .tab-btn.active::after {
@@ -147,16 +194,16 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
 
-  /* ── SWATCHES ──────────────────────────────────────────────── */
+  /* ── SWATCHES ─────────────────────────────────────────────────── */
   .swatch-group { display: flex; flex-direction: column; gap: 8px; }
   .swatch-group-label {
     font-size: 0.53rem; letter-spacing: 0.42em; text-transform: uppercase;
     color: rgba(30,20,10,0.3);
   }
-  .swatches { display: flex; gap: 9px; align-items: center; }
+  .swatches { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; }
   .swatch {
     display: flex; flex-direction: column; align-items: center; gap: 5px;
-    background: none; border: none; padding: 0;
+    background: none; border: none; padding: 0; cursor: pointer;
   }
   .swatch-circle {
     width: 32px; height: 32px; border-radius: 50%;
@@ -185,14 +232,14 @@
   .diamond-pink      { background: radial-gradient(circle at 35% 35%, #FFD8E4, #E090A8); }
   .diamond-yellow    { background: radial-gradient(circle at 35% 35%, #FFFAC8, #E0C820); }
 
-  /* ── SLIDER ────────────────────────────────────────────────── */
+  /* ── SLIDER ───────────────────────────────────────────────────── */
   .slider-group { display: flex; flex-direction: column; gap: 8px; min-width: 150px; }
   .slider-label-row { display: flex; justify-content: space-between; align-items: baseline; }
   .slider-label { font-size: 0.53rem; letter-spacing: 0.42em; text-transform: uppercase; color: rgba(30,20,10,0.3); }
   .slider-value { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: rgba(140,105,50,0.85); }
   input[type=range] {
     -webkit-appearance: none; width: 100%; height: 2px;
-    background: rgba(140,105,50,0.2); border-radius: 1px; outline: none;
+    background: rgba(140,105,50,0.2); border-radius: 1px; outline: none; cursor: pointer;
   }
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
@@ -201,14 +248,14 @@
   }
   input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
 
-  /* ── TOGGLES ───────────────────────────────────────────────── */
+  /* ── TOGGLES ──────────────────────────────────────────────────── */
   .toggle-group { display: flex; flex-direction: column; gap: 10px; }
   .toggle-row { display: flex; align-items: center; gap: 10px; }
   .toggle-label { font-size: 0.54rem; letter-spacing: 0.33em; text-transform: uppercase; color: rgba(30,20,10,0.45); }
   .toggle {
     width: 36px; height: 18px; border-radius: 9px;
     background: rgba(140,105,50,0.15); position: relative;
-    transition: background 0.25s; flex-shrink: 0; border: none;
+    transition: background 0.25s; flex-shrink: 0; border: none; cursor: pointer;
   }
   .toggle.on { background: rgba(140,105,50,0.75); }
   .toggle::after {
@@ -219,11 +266,11 @@
   }
   .toggle.on::after { left: 20px; }
 
-  /* ── FINISH BUTTONS ────────────────────────────────────────── */
-  .finish-btns { display: flex; gap: 7px; }
+  /* ── FINISH BUTTONS ───────────────────────────────────────────── */
+  .finish-btns { display: flex; gap: 7px; flex-wrap: wrap; }
   .finish-btn {
     padding: 6px 14px; border-radius: 2px;
-    border: 1px solid rgba(140,105,50,0.2); background: transparent;
+    border: 1px solid rgba(140,105,50,0.2); background: transparent; cursor: pointer;
     font-family: 'Jost', sans-serif; font-size: 0.54rem; letter-spacing: 0.32em;
     text-transform: uppercase; color: rgba(30,20,10,0.4); transition: all 0.2s;
   }
@@ -233,7 +280,7 @@
   .mood-btns { display: flex; gap: 7px; flex-wrap: wrap; }
   .mood-btn {
     padding: 6px 14px; border-radius: 2px;
-    border: 1px solid rgba(140,105,50,0.2); background: transparent;
+    border: 1px solid rgba(140,105,50,0.2); background: transparent; cursor: pointer;
     font-family: 'Jost', sans-serif; font-size: 0.54rem; letter-spacing: 0.28em;
     text-transform: uppercase; color: rgba(30,20,10,0.4); transition: all 0.2s;
     display: flex; align-items: center; gap: 7px;
@@ -242,9 +289,10 @@
   .mood-btn.active { background: rgba(140,105,50,0.08); border-color: rgba(140,105,50,0.7); color: rgba(140,105,50,0.9); }
   .mood-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-  /* ── RIGHT: PRICE + CTA ────────────────────────────────────── */
+  /* ── RIGHT: PRICE + CTA ───────────────────────────────────────── */
   .config-right {
-    margin-left: auto; display: flex; flex-direction: column;
+    margin-left: auto;
+    display: flex; flex-direction: column;
     align-items: flex-end; gap: 8px; flex-shrink: 0;
   }
   .price-row { display: flex; align-items: baseline; gap: 4px; }
@@ -255,7 +303,7 @@
   .btn-add {
     padding: 10px 20px;
     background: linear-gradient(135deg, #C9A848, #9F7818);
-    border: none; color: #faf7f0;
+    border: none; color: #faf7f0; cursor: pointer;
     font-family: 'Jost', sans-serif; font-size: 0.56rem; font-weight: 400;
     letter-spacing: 0.42em; text-transform: uppercase;
     transition: all 0.25s ease; position: relative; overflow: hidden;
@@ -263,14 +311,17 @@
   .btn-add::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent); }
   .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(160,120,40,0.3); }
   .btn-save {
-    padding: 9px 16px; background: transparent;
+    padding: 9px 16px; background: transparent; cursor: pointer;
     border: 1px solid rgba(140,105,50,0.25); color: rgba(140,105,50,0.7);
     font-family: 'Jost', sans-serif; font-size: 0.56rem; letter-spacing: 0.42em;
     text-transform: uppercase; transition: all 0.25s;
   }
   .btn-save:hover { border-color: rgba(140,105,50,0.6); background: rgba(140,105,50,0.04); }
 
-  /* ── LOADING SCREEN ────────────────────────────────────────── */
+  /* ── DIVIDER ──────────────────────────────────────────────────── */
+  .vdivider { width: 1px; height: 48px; background: rgba(140,105,50,0.1); margin: 0 28px; }
+
+  /* ── LOADING SCREEN ───────────────────────────────────────────── */
   .loader {
     position: fixed; inset: 0; z-index: 100;
     background: #EDE8DF; display: flex; flex-direction: column;
@@ -288,24 +339,134 @@
   @keyframes scan { to { left: 100%; } }
   .loader-label { font-size: 0.56rem; letter-spacing: 0.42em; text-transform: uppercase; color: rgba(140,105,50,0.4); }
 
-  /* ── BELOW-FOLD ────────────────────────────────────────────── */
+  /* ── BELOW FOLD ───────────────────────────────────────────────── */
   .below-fold {
-    background: #F5F1EA; padding: 100px 64px; min-height: 60vh;
+    background: #F5F1EA;
+    padding: 100px 64px;
+    min-height: 60vh;
     display: flex; gap: 72px; align-items: flex-start;
   }
   .bf-col { flex: 1; display: flex; flex-direction: column; gap: 20px; }
   .bf-label { font-size: 0.53rem; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(140,105,50,0.6); }
   .bf-heading { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.5rem, 2.2vw, 2.2rem); font-weight: 300; line-height: 1.2; color: #1A1410; }
   .bf-body { font-size: 0.76rem; line-height: 1.9; color: rgba(30,20,10,0.5); max-width: 360px; }
-  .bf-divider { width: 1px; background: rgba(140,105,50,0.12); align-self: stretch; }
+  .bf-divider-v { width: 1px; background: rgba(140,105,50,0.12); align-self: stretch; }
+  .bf-divider-h { display: none; height: 1px; background: rgba(140,105,50,0.12); }
 
-  /* ── ANIMATIONS ────────────────────────────────────────────── */
+  /* ── ANIMATIONS ───────────────────────────────────────────────── */
   @keyframes fadeDown { from { opacity:0; transform: translateY(-14px); } to { opacity:1; transform: none; } }
   @keyframes fadeUp   { from { opacity:0; transform: translateY(16px);  } to { opacity:1; transform: none; } }
+
+  /* ════════════════════════════════════════════════════════════════
+     RESPONSIVE BREAKPOINTS
+  ════════════════════════════════════════════════════════════════ */
+
+  /* ── TABLET  640 – 1023px ──────────────────────────────────────── */
+  @media (max-width: 1023px) {
+
+    /* Nav — hide desktop links, show hamburger */
+    .nav-links  { display: none; }
+    .scroll-toggle { display: none; }
+    .nav-hamburger { display: flex; }
+    .nav { padding: 18px 24px; }
+
+    /* Ring title smaller */
+    .ring-hero { top: 70px; left: 28px; }
+
+    /* Config bar */
+    .config-bar { padding: 10px 24px 12px; }
+    .tab-btn    { margin-right: 16px; }
+
+    /* Tab panel: wrap items, no hard horizontal stretch */
+    .tab-panel.active { gap: 20px; }
+
+    /* Price+CTA: move under swatches, full-width row */
+    .config-right {
+      margin-left: 0;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(140,105,50,0.08);
+    }
+
+    /* Below fold: two columns then stacked */
+    .below-fold { padding: 64px 36px; gap: 40px; }
+  }
+
+  /* ── MOBILE  < 640px ───────────────────────────────────────────── */
+  @media (max-width: 639px) {
+
+    /* Hero — limit height so config bar is always reachable */
+    .hero { height: 100svh; min-height: 420px; }
+
+    /* Nav */
+    .nav { padding: 14px 18px; }
+    .nav-logo { font-size: 0.85rem; letter-spacing: 0.2em; }
+
+    /* Ring title */
+    .ring-hero { top: 60px; left: 18px; }
+    .ring-eyebrow { font-size: 0.48rem; }
+
+    /* Corner ornaments smaller */
+    .orn { width: 36px; height: 36px; }
+
+    /* Config bar — more compact */
+    .config-bar { padding: 8px 18px 12px; }
+    .tab-btn    { font-size: 0.52rem; letter-spacing: 0.28em; margin-right: 12px; padding-bottom: 7px; }
+
+    /* Swatches shrink slightly */
+    .swatch-circle { width: 28px; height: 28px; }
+
+    /* Size slider fills full width */
+    .slider-group { min-width: 0; width: 100%; }
+
+    /* Mood buttons — smaller padding */
+    .mood-btn   { padding: 5px 10px; font-size: 0.5rem; }
+    .finish-btn { padding: 5px 10px; font-size: 0.5rem; }
+
+    /* Price */
+    .price-amt  { font-size: 1.6rem; }
+    .btn-add    { padding: 8px 14px; font-size: 0.5rem; letter-spacing: 0.3em; }
+    .btn-save   { padding: 7px 10px; font-size: 0.5rem; }
+
+    /* Below fold: single column, horizontal dividers */
+    .below-fold {
+      flex-direction: column;
+      padding: 48px 24px;
+      gap: 32px;
+      min-height: unset;
+    }
+    .bf-divider-v { display: none; }
+    .bf-divider-h { display: block; }
+    .bf-body { max-width: 100%; }
+  }
+
+  /* ── VERY SMALL  < 380px ──────────────────────────────────────── */
+  @media (max-width: 379px) {
+    .nav-logo { font-size: 0.75rem; }
+    .config-bar { padding: 6px 12px 10px; }
+    .tab-btn    { font-size: 0.48rem; margin-right: 10px; }
+    .swatch-circle { width: 24px; height: 24px; }
+    .price-amt  { font-size: 1.4rem; }
+    .btn-add    { padding: 7px 10px; font-size: 0.46rem; letter-spacing: 0.22em; }
+  }
+
+  /* ── LANDSCAPE PHONE ──────────────────────────────────────────── */
+  @media (max-width: 800px) and (max-height: 450px) and (orientation: landscape) {
+    .hero { height: 100svh; }
+    .ring-hero { top: 12px; }
+    .config-bar { padding: 6px 18px 8px; }
+    .config-tabs { margin-bottom: 6px; }
+    .tab-btn { padding-bottom: 5px; }
+    /* viewer gets less bottom offset — config bar is shallower */
+  }
 </style>
 
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import RingViewer from '$lib/components/RingViewer.svelte';
 
   let metalType    = 'gold';
@@ -316,8 +477,12 @@
   let sparkle      = true;
   let isLoaded     = false;
 
-  let activeTab      = 'metal';
-  let scrollUnlocked = false;
+  let activeTab        = 'metal';
+  let scrollUnlocked   = false;
+  let mobileMenuOpen   = false;
+
+  /** ref to the config-bar element so we can measure its height */
+  let configBarEl;
 
   const metals = [
     { id: 'gold',     label: '18k Gold',  cls: 'metal-gold' },
@@ -358,21 +523,46 @@
     document.documentElement.classList.toggle('scroll-unlocked', scrollUnlocked);
   }
 
+  /**
+   * Keep the CSS variable --config-bar-h in sync with the actual
+   * rendered height of the config bar so the 3-D viewer and vignette
+   * always clear it perfectly on every screen size / orientation.
+   */
+  function syncConfigBarHeight() {
+    if (!configBarEl) return;
+    const h = configBarEl.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--config-bar-h', `${h}px`);
+  }
+
   onMount(() => {
     document.documentElement.classList.add('scroll-locked');
+
+    // Measure immediately after first paint, then on resize/orientation change
+    tick().then(syncConfigBarHeight);
+    const ro = new ResizeObserver(syncConfigBarHeight);
+    if (configBarEl) ro.observe(configBarEl);
+
+    return () => ro.disconnect();
   });
+
+  // Close mobile menu when a tab changes
+  function selectTab(t) {
+    activeTab = t;
+    mobileMenuOpen = false;
+  }
 </script>
 
-<!-- Loading screen -->
+<!-- ── LOADING ────────────────────────────────────────────────── -->
 <div class="loader" class:gone={isLoaded}>
   <div class="loader-logo">Hera-Nedit</div>
   <div class="loader-bar"></div>
   <div class="loader-label">Preparing your ring</div>
 </div>
 
+<!-- ── HERO ───────────────────────────────────────────────────── -->
 <div class="hero">
 
-  <!-- 3D viewer — occupies hero minus config bar height at bottom -->
+  <!-- 3-D viewer -->
   <div class="viewer-full">
     <RingViewer
       bind:isLoaded
@@ -380,7 +570,6 @@
     />
   </div>
 
-  <!-- Vignette — only covers the ring viewport area, not the config bar -->
   <div class="atmo-overlay"></div>
   <div class="grain"></div>
 
@@ -400,22 +589,47 @@
     </svg>
   </div>
 
-  <!-- Nav -->
+  <!-- ── NAV ──────────────────────────────────────────────────── -->
   <nav class="nav">
     <div class="nav-logo">Hera-Nedit <span>Jewellery</span></div>
     <div class="nav-right">
+      <!-- Desktop links -->
       <div class="nav-links">
         <span>Collections</span>
         <span>Atelier</span>
         <span>About</span>
         <span>Contact</span>
       </div>
+      <!-- Desktop scroll toggle -->
       <button class="scroll-toggle" class:unlocked={scrollUnlocked} on:click={() => scrollUnlocked = !scrollUnlocked}>
         <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
         {scrollUnlocked ? 'Lock View' : 'Explore'}
       </button>
+      <!-- Mobile hamburger -->
+      <button class="nav-hamburger" aria-label="Open menu" on:click={() => mobileMenuOpen = !mobileMenuOpen}>
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-drawer" class:open={mobileMenuOpen}>
+    <div class="mobile-drawer-top">
+      <div class="nav-logo">Hera-Nedit <span>Jewellery</span></div>
+      <button class="drawer-close" aria-label="Close menu" on:click={() => mobileMenuOpen = false}>✕</button>
+    </div>
+    <div class="mobile-drawer-links">
+      <span on:click={() => mobileMenuOpen = false}>Collections</span>
+      <span on:click={() => mobileMenuOpen = false}>Atelier</span>
+      <span on:click={() => mobileMenuOpen = false}>About</span>
+      <span on:click={() => mobileMenuOpen = false}>Contact</span>
+    </div>
+    <button class="scroll-toggle" style="width:fit-content" class:unlocked={scrollUnlocked}
+      on:click={() => { scrollUnlocked = !scrollUnlocked; mobileMenuOpen = false; }}>
+      <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      {scrollUnlocked ? 'Lock View' : 'Explore'}
+    </button>
+  </div>
 
   <!-- Ring title -->
   <div class="ring-hero">
@@ -432,24 +646,31 @@
     <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
-  <!-- Config bar -->
-  <div class="config-bar">
+  <!-- ── CONFIG BAR ──────────────────────────────────────────── -->
+  <div class="config-bar" bind:this={configBarEl}>
     <div class="config-tabs">
       {#each ['metal','stone','finish','size','scene'] as t}
-        <button class="tab-btn" class:active={activeTab===t} on:click={() => activeTab=t}>
-          {t === 'scene' ? 'Lighting & Scene' : t === 'size' ? 'Stone Size' : t.charAt(0).toUpperCase()+t.slice(1)}
+        <button
+          class="tab-btn"
+          class:active={activeTab === t}
+          on:click={() => selectTab(t)}
+        >
+          {t === 'scene' ? 'Lighting & Scene'
+            : t === 'size'  ? 'Stone Size'
+            : t.charAt(0).toUpperCase() + t.slice(1)}
         </button>
       {/each}
     </div>
 
-    <div style="display:flex; align-items:flex-start; gap:0;">
+    <div style="display:flex; align-items:flex-start; gap:0; flex-wrap:wrap;">
 
-      <div class="tab-panel" class:active={activeTab==='metal'}>
+      <!-- Metal tab -->
+      <div class="tab-panel" class:active={activeTab === 'metal'}>
         <div class="swatch-group">
           <span class="swatch-group-label">Band Material</span>
           <div class="swatches">
             {#each metals as m}
-              <button class="swatch" class:active={metalType===m.id} on:click={()=>metalType=m.id}>
+              <button class="swatch" class:active={metalType === m.id} on:click={() => metalType = m.id}>
                 <div class="swatch-circle {m.cls}"></div>
                 <span class="swatch-name">{m.label}</span>
               </button>
@@ -458,12 +679,13 @@
         </div>
       </div>
 
-      <div class="tab-panel" class:active={activeTab==='stone'}>
+      <!-- Stone tab -->
+      <div class="tab-panel" class:active={activeTab === 'stone'}>
         <div class="swatch-group">
           <span class="swatch-group-label">Centre Stone</span>
           <div class="swatches">
             {#each diamonds as d}
-              <button class="swatch" class:active={diamondType===d.id} on:click={()=>diamondType=d.id}>
+              <button class="swatch" class:active={diamondType === d.id} on:click={() => diamondType = d.id}>
                 <div class="swatch-circle {d.cls}"></div>
                 <span class="swatch-name">{d.label}</span>
               </button>
@@ -472,28 +694,30 @@
         </div>
       </div>
 
-      <div class="tab-panel" class:active={activeTab==='finish'}>
+      <!-- Finish tab -->
+      <div class="tab-panel" class:active={activeTab === 'finish'}>
         <div class="swatch-group">
           <span class="swatch-group-label">Surface Finish</span>
           <div class="finish-btns">
             {#each finishes as f}
-              <button class="finish-btn" class:active={finish===f} on:click={()=>finish=f}>
-                {f.charAt(0).toUpperCase()+f.slice(1)}
+              <button class="finish-btn" class:active={finish === f} on:click={() => finish = f}>
+                {f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
             {/each}
           </div>
         </div>
-        <div style="width:1px;height:48px;background:rgba(140,105,50,0.1);margin:0 28px;"></div>
+        <div class="vdivider"></div>
         <div class="toggle-group">
           <span class="swatch-group-label" style="margin-bottom:2px">Effects</span>
           <div class="toggle-row">
-            <button class="toggle" class:on={sparkle} on:click={()=>sparkle=!sparkle}></button>
+            <button class="toggle" class:on={sparkle} on:click={() => sparkle = !sparkle}></button>
             <span class="toggle-label">Diamond Sparkle</span>
           </div>
         </div>
       </div>
 
-      <div class="tab-panel" class:active={activeTab==='size'}>
+      <!-- Size tab -->
+      <div class="tab-panel" class:active={activeTab === 'size'}>
         <div class="slider-group">
           <div class="slider-label-row">
             <span class="slider-label">Stone Size</span>
@@ -503,12 +727,13 @@
         </div>
       </div>
 
-      <div class="tab-panel" class:active={activeTab==='scene'}>
+      <!-- Scene tab -->
+      <div class="tab-panel" class:active={activeTab === 'scene'}>
         <div class="swatch-group">
           <span class="swatch-group-label">Lighting Mood</span>
           <div class="mood-btns">
             {#each moods as m}
-              <button class="mood-btn" class:active={mood===m.id} on:click={()=>mood=m.id}>
+              <button class="mood-btn" class:active={mood === m.id} on:click={() => mood = m.id}>
                 <span class="mood-dot" style="background:{m.dot}"></span>
                 {m.label}
               </button>
@@ -517,6 +742,7 @@
         </div>
       </div>
 
+      <!-- Price + CTA -->
       <div class="config-right">
         <div>
           <div class="price-row">
@@ -533,23 +759,31 @@
 
     </div>
   </div>
+  <!-- /config-bar -->
 
 </div>
+<!-- /hero -->
 
-<!-- Below fold -->
+<!-- ── BELOW FOLD ──────────────────────────────────────────────── -->
 <div class="below-fold">
   <div class="bf-col">
     <span class="bf-label">Craftsmanship</span>
     <h2 class="bf-heading">Each ring is<br/>made by hand</h2>
     <p class="bf-body">Our artisans spend up to forty hours on a single piece. Every setting is individually checked under magnification before it leaves the atelier.</p>
   </div>
-  <div class="bf-divider"></div>
+
+  <div class="bf-divider-v"></div>
+  <div class="bf-divider-h"></div>
+
   <div class="bf-col">
     <span class="bf-label">Materials</span>
     <h2 class="bf-heading">Ethically sourced<br/>gemstones</h2>
     <p class="bf-body">We work exclusively with certified suppliers and traceable supply chains — so every stone you choose carries a story worth telling.</p>
   </div>
-  <div class="bf-divider"></div>
+
+  <div class="bf-divider-v"></div>
+  <div class="bf-divider-h"></div>
+
   <div class="bf-col">
     <span class="bf-label">Delivery</span>
     <h2 class="bf-heading">Delivered in<br/>8 – 12 weeks</h2>

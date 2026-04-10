@@ -10,6 +10,7 @@
   export let sparkle      = true;
   export let isLoaded     = false;
 
+  let container;  // ← bind to the wrapper div, not the canvas
   let canvas;
 
   let ringMats      = [];
@@ -19,9 +20,6 @@
   let diamondVisual = null;
   let sparkLights   = [];
 
-  // The diamond mesh origin in Blender sits slightly inside the gem.
-  // Multiplying every scale by 1.15 ensures the minimum slider value
-  // (0.6 × 1.15 = 0.69) always keeps the gem flush with its setting.
   const DIAMOND_BASE_SCALE = 1.15;
 
   const METALS = {
@@ -104,16 +102,24 @@
     const scene = new THREE.Scene();
     scene.background = null;
 
-    const rect = canvas.getBoundingClientRect();
-    const camera = new THREE.PerspectiveCamera(36, rect.width / rect.height, 0.01, 100);
+    // ── SIZE HELPER ──────────────────────────────────────────────
+    // Always read from the *container div*, never from the canvas.
+    // The canvas itself reports 0×0 until the renderer sets its size.
+    function getSize() {
+      const r = container.getBoundingClientRect();
+      return { w: Math.max(r.width, 1), h: Math.max(r.height, 1) };
+    }
+
+    const { w, h } = getSize();
+    const camera = new THREE.PerspectiveCamera(36, w / h, 0.01, 100);
     camera.position.set(0, 0.4, 2.6);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setSize(rect.width, rect.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = MOODS[mood].exposure;
+    renderer.setSize(w, h);   // must come after setPixelRatio
 
     const rgbeLoader = new RGBELoader();
     let currentHdr = null;
@@ -231,14 +237,16 @@
       isLoaded = true;
     });
 
+    // ── RESIZE OBSERVER ──────────────────────────────────────────
+    // Watch the container div — it always has correct CSS dimensions.
+    // The canvas element itself can report stale/zero size.
     const obs = new ResizeObserver(() => {
-      const r = canvas.getBoundingClientRect();
-      if (r.width === 0 || r.height === 0) return;
-      camera.aspect = r.width / r.height;
+      const { w, h } = getSize();
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setSize(r.width, r.height);
+      renderer.setSize(w, h);
     });
-    obs.observe(canvas);
+    obs.observe(container);
 
     let lastMood = mood;
     function checkMoodChange() {
@@ -267,9 +275,9 @@
       if (sparkle && diamondNode) {
         const dp = new THREE.Vector3();
         diamondNode.getWorldPosition(dp);
-        sparkLights[0].position.set(dp.x + Math.cos(t * 1.3) * 0.5,     dp.y + Math.sin(t * 0.8) * 0.3 + 0.2, dp.z + Math.sin(t * 1.3) * 0.5);
-        sparkLights[1].position.set(dp.x + Math.cos(t * 0.9 + 2) * 0.4, dp.y + 0.1,                            dp.z + Math.sin(t * 0.9 + 2) * 0.4);
-        sparkLights[2].position.set(dp.x + Math.cos(t * 1.1 + 4) * 0.35,dp.y - 0.1,                            dp.z + Math.sin(t * 1.1 + 4) * 0.35);
+        sparkLights[0].position.set(dp.x + Math.cos(t * 1.3) * 0.5,      dp.y + Math.sin(t * 0.8) * 0.3 + 0.2, dp.z + Math.sin(t * 1.3) * 0.5);
+        sparkLights[1].position.set(dp.x + Math.cos(t * 0.9 + 2) * 0.4,  dp.y + 0.1,                            dp.z + Math.sin(t * 0.9 + 2) * 0.4);
+        sparkLights[2].position.set(dp.x + Math.cos(t * 1.1 + 4) * 0.35, dp.y - 0.1,                            dp.z + Math.sin(t * 1.1 + 4) * 0.35);
       }
       controls.update();
       renderer.render(scene, camera);
@@ -283,4 +291,18 @@
   });
 </script>
 
-<canvas bind:this={canvas} style="width:100%;height:100%;display:block;"></canvas>
+<!--
+  The wrapper div fills the parent (.viewer-full) completely.
+  The canvas fills the wrapper.
+  ResizeObserver watches the div — always has correct CSS dimensions
+  even when the canvas itself reports 0×0 on first paint.
+-->
+<div
+  bind:this={container}
+  style="width:100%; height:100%; position:relative; overflow:hidden;"
+>
+  <canvas
+    bind:this={canvas}
+    style="position:absolute; inset:0; width:100%; height:100%; display:block;"
+  ></canvas>
+</div>
