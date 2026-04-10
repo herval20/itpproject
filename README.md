@@ -1,42 +1,25 @@
-# sv
+# Projektupdate
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+## Heutige Arbeit
 
-## Creating a project
+Heute haben wir weiter am Projekt gearbeitet und wichtige Verbesserungen gemacht.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Verbesserungen
 
-```sh
-# create a new project
-npx sv create my-app
-```
+Hera hat den Inhalt der Seite verbessert und das Problem mit der Diamantgröße gefixt (der Diamant ging vorher außerhalb des Rings).
 
-To recreate this project with the same configuration:
+Nedit hat die Layout-Probleme behoben und die Darstellung der Seite verbessert.
 
-```sh
-# recreate this project
-npx sv@0.12.5 create --template minimal --no-types --add prettier eslint tailwindcss="plugins:typography,forms" --install npm invertedindex
-```
+## Aktueller Stand
 
-## Developing
+Die Webseite funktioniert, ist aber noch **nicht responsive** und hat noch einige kleinere Darstellungsprobleme.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Nächste Schritte
 
-```sh
-npm run dev
+* Webseite responsive machen
+* Präsentation vor der Klasse vorbereiten
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+---
 
-## Building
+Das Projekt macht gute Fortschritte.
 
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
